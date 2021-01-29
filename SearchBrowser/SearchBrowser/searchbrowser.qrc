@@ -1,4 +1,6 @@
 <RCC>
-    <qresource prefix="SearchBrowser">
+    <qresource prefix="/SearchBrowser"/>
+    <qresource prefix="/images">
+        <file>question.png</file>
     </qresource>
 </RCC>
