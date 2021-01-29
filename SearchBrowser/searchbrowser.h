@@ -10,7 +10,7 @@ class SearchBrowser : public QMainWindow
     Q_OBJECT
 
 public:
-    SearchBrowser(QWidget *parent = Q_NULLPTR);
+    SearchBrowser(QWidget* parent = Q_NULLPTR);
 
 private:
     Ui::SearchBrowserClass ui;
@@ -20,7 +20,15 @@ private:
     QMenu* helpMenu;
     QAction* aboutAct;
     QAction* helpAct;
-private slots:
+
+private:
     void about();
     void help();
+
+private:
+    void blockInerface(bool);
+
+    int starts();
+    bool browserWorks(int);
+
 };

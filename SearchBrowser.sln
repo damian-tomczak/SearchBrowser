@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SearchBrowser", "SearchBrowser\SearchBrowser.vcxproj", "{1265A771-C780-4ACA-B9FA-57BCB1557841}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SearchBrowser", "SearchBrowser\SearchBrowser.vcxproj", "{952D3F4D-C4FE-418C-AB54-056A583C499D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1265A771-C780-4ACA-B9FA-57BCB1557841}.Debug|x64.ActiveCfg = Debug|x64
-		{1265A771-C780-4ACA-B9FA-57BCB1557841}.Debug|x64.Build.0 = Debug|x64
-		{1265A771-C780-4ACA-B9FA-57BCB1557841}.Release|x64.ActiveCfg = Release|x64
-		{1265A771-C780-4ACA-B9FA-57BCB1557841}.Release|x64.Build.0 = Release|x64
+		{952D3F4D-C4FE-418C-AB54-056A583C499D}.Debug|x64.ActiveCfg = Debug|x64
+		{952D3F4D-C4FE-418C-AB54-056A583C499D}.Debug|x64.Build.0 = Debug|x64
+		{952D3F4D-C4FE-418C-AB54-056A583C499D}.Release|x64.ActiveCfg = Release|x64
+		{952D3F4D-C4FE-418C-AB54-056A583C499D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {946C1B47-7AD1-4AE7-A19A-04B0A2FA9555}
+		SolutionGuid = {7F3C7E78-6F20-4A4E-A213-2E5C31432C82}
 	EndGlobalSection
 EndGlobal

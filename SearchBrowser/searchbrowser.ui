@@ -27,7 +27,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="Browser">
           <item>
            <property name="text">
             <string>Chrome</string>
@@ -47,7 +47,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox_3">
+         <widget class="QComboBox" name="Time">
           <item>
            <property name="text">
             <string>Today</string>
@@ -77,7 +77,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox_2">
+         <widget class="QComboBox" name="Accuracy">
           <item>
            <property name="text">
             <string>Normal</string>
@@ -97,12 +97,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="plainTextEdit"/>
+         <widget class="QPlainTextEdit" name="Input"/>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="Start">
         <property name="text">
          <string>Start</string>
         </property>

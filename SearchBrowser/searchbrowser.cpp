@@ -1,6 +1,6 @@
 #include "searchbrowser.h"
 
-SearchBrowser::SearchBrowser(QWidget *parent)
+SearchBrowser::SearchBrowser(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
@@ -9,10 +9,11 @@ SearchBrowser::SearchBrowser(QWidget *parent)
     statusBar()->showMessage(message, 0);
 
     createActions();
-    createMenus();  
+    createMenus();
 
     setWindowTitle(tr("SearchBrowser"));
 
+    connect(ui.Start, &QAbstractButton::released, this, &SearchBrowser::starts);
 }
 
 void SearchBrowser::about()
@@ -47,4 +48,28 @@ void SearchBrowser::createMenus()
     helpMenu->addAction(aboutAct);
 }
 
+void SearchBrowser::blockInerface(bool condition)
+{
+    if (condition)
+    {
+        ui.Start->setEnabled(false);
+        ui.Browser->setEnabled(false);
+        ui.Time->setEnabled(false);
+        ui.Accuracy->setEnabled(false);
+        ui.Input->setEnabled(false);
+    }
+    else
+    {
+        ui.Start->setEnabled(true);
+        ui.Browser->setEnabled(true);
+        ui.Time->setEnabled(true);
+        ui.Accuracy->setEnabled(true);
+        ui.Input->setEnabled(true);
+    }
+}
 
+int SearchBrowser::starts()
+{
+    blockInerface(true);
+    return 1;
+}
