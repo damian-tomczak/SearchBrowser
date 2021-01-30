@@ -4,7 +4,7 @@ SearchBrowser::SearchBrowser(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-
+    Updater updater;
     QString message = tr("SearchBrowser 0.1 not update available");
     statusBar()->showMessage(message, 0);
 
@@ -21,7 +21,7 @@ void SearchBrowser::about()
     QMessageBox msgBox;
     msgBox.setWindowTitle("About Menu");
     msgBox.setTextFormat(Qt::RichText);
-    msgBox.setText("Copyright (C) <a href='https://damian-tomczak.pl'>Damian Tomczak</a><br>"
+    msgBox.setText("Copyright (C) 2021 <a href='https://damian-tomczak.pl'>Damian Tomczak</a><br>"
         "Did you find a error? <a href='mailto:kontakt@damian-tomczak.pl'>kontakt@damian-tomczak.pl</a>");
     msgBox.exec();
 }
@@ -72,72 +72,109 @@ int SearchBrowser::starts()
 {
     blockInerface(true);
 
-    int result = browserWorks(ui.Browser->itemData(ui.Browser->currentIndex()).toInt());
+    int choosed = ui.Browser->itemData(ui.Browser->currentIndex()).toInt();
 
+    int result = getBrowserProcess(choosed, false);
     switch (result)
     {
-        // Browser running
+    // Browser running
     case 0:
+        if (openBrowserMessage())
+        {
+            getBrowserProcess(choosed, true);
+        }
+
+        blockInerface(false);
         break;
-        // Error while checking processes
+    // System process
     case 1:
+        runProgram();
         break;
-        // Browser is not running
+    // Browser is not running
     case 2:
+        errorMessage();
         break;
     }
 
     return 1;
 }
 
-void PrintProcessNameAndID(DWORD processID)
+int SearchBrowser::getBrowserProcess(int index, bool kill)
 {
-    TCHAR szProcessName[MAX_PATH] = TEXT("<unkown>");
+    std::vector<std::wstring> browsers = {
+        L"chrome.exe"
+    };
 
-    // Get a handle to the process
+    const wchar_t* executableName = browsers[index].c_str();
 
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+    PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
 
-    // Get the process name
-    if (NULL != hProcess)
+    const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (!Process32First(snapshot, &entry))
     {
-        HMODULE hMod;
-        DWORD cbNeeded;
-
-        if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
-        {
-            GetModuleBaseName(hProcess, hMod, szProcessName, sizeof(szProcessName) / sizeof(TCHAR));
-        }
+        CloseHandle(snapshot);
+        return 2;
     }
 
-    // Release the handle to the process
+    do {
+        if (!_tcsicmp(entry.szExeFile, executableName))
+        {
+            if (kill)
+            {
+                killBrowser(entry.th32ProcessID, 1);
+            }
+            CloseHandle(snapshot);
+            return 0;
+        }
+    } while (Process32Next(snapshot, &entry));
+
+    CloseHandle(snapshot);
+    return 1;
+
+}
+
+bool SearchBrowser::openBrowserMessage()
+{
+    QMessageBox::StandardButton reply = QMessageBox::warning(this, tr("Browser Error"),
+        tr("<b>Your browser is running in the background.\n"
+        "You must close the browser!</b>"
+        "\nForce shutdown the browser?"),
+        QMessageBox::Yes|QMessageBox::Cancel);
+
+    if (reply == QMessageBox::Yes)
+        return true;
+    else
+        return false;
+}
+
+void SearchBrowser::errorMessage()
+{
+    QMessageBox::critical(this, tr("Critical Error"),
+        tr("Something went wrong..."),
+        QMessageBox::Close);
+    QApplication::quit();
+}
+
+int SearchBrowser::runProgram()
+{
+    return 1;
+}
+
+bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
+{
+    DWORD dwDesirecAccess = PROCESS_TERMINATE;
+    BOOL bInheritHandle = FALSE;
+    HANDLE hProcess = OpenProcess(dwDesirecAccess, bInheritHandle, dwProcessId);
+    if (hProcess == NULL)
+        return FALSE;
+
+    BOOL result = TerminateProcess(hProcess, uExitCode);
+
     CloseHandle(hProcess);
+    
+    return true;
+    
 }
 
-int SearchBrowser::browserWorks(int index)
-{
-
-
-    // Get the list of process identifiers
-    DWORD aProcesses[1024], cbNeeded, cProcesses;
-    unsigned int i;
-
-    if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded))
-    {
-        return 1;
-    }
-
-    // Calculate how many process identifiers were returned
-    cProcesses = cbNeeded / sizeof(DWORD);
-
-    // Print the name and process identifier for each process
-    for (int i =0;i<cProcesses;++i)
-    {
-        if (aProcesses[i] != 0)
-        {
-            PrintProcessNameAndID(aProcesses[i]);
-        }
-    }
-
-    return 0;
-}

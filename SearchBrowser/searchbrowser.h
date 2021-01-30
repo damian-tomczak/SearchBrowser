@@ -3,11 +3,10 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_searchbrowser.h"
 #include <windows.h>
-#include <stdio.h>
+#include <tlhelp32.h>
 #include <tchar.h>
-#include <psapi.h>
 #include <QMessageBox>
-
+#include "updater.h"
 
 class SearchBrowser : public QMainWindow
 {
@@ -33,6 +32,10 @@ private:
     void blockInerface(bool);
 
     int starts();
-    int browserWorks(int);
+    int getBrowserProcess(int, bool);
+    int runProgram();
+    bool openBrowserMessage();
+    void errorMessage();
+    bool killBrowser(DWORD, UINT);
 
 };
