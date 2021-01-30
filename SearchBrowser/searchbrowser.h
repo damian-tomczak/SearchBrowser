@@ -2,6 +2,10 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_searchbrowser.h"
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <psapi.h>
 #include <QMessageBox>
 
 
@@ -29,6 +33,6 @@ private:
     void blockInerface(bool);
 
     int starts();
-    bool browserWorks(int);
+    int browserWorks(int);
 
 };
