@@ -7,6 +7,7 @@
 #include <tchar.h>
 #include <QMessageBox>
 #include "updater.h"
+#include <string>
 
 class SearchBrowser : public QMainWindow
 {

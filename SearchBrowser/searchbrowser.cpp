@@ -4,9 +4,19 @@ SearchBrowser::SearchBrowser(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+
     Updater updater;
-    QString message = tr("SearchBrowser 0.1 not update available");
-    statusBar()->showMessage(message, 0);
+    std::string message;
+    if (updater.updateAvailable())
+    {
+        message = "SearchBrowser " VERSION " UPDATE AVAILABLE";
+    }
+    else
+    {
+        message = "SearchBrowser " VERSION " not update available";
+    }
+
+    statusBar()->showMessage(QString::fromStdString(message), 0);
 
     createActions();
     createMenus();
@@ -55,7 +65,6 @@ void SearchBrowser::blockInerface(bool condition)
         ui.Start->setEnabled(false);
         ui.Browser->setEnabled(false);
         ui.Time->setEnabled(false);
-        ui.Accuracy->setEnabled(false);
         ui.Input->setEnabled(false);
     }
     else
@@ -63,7 +72,6 @@ void SearchBrowser::blockInerface(bool condition)
         ui.Start->setEnabled(true);
         ui.Browser->setEnabled(true);
         ui.Time->setEnabled(true);
-        ui.Accuracy->setEnabled(true);
         ui.Input->setEnabled(true);
     }
 }
@@ -77,7 +85,7 @@ int SearchBrowser::starts()
     int result = getBrowserProcess(choosed, false);
     switch (result)
     {
-    // Browser running
+        // Browser running
     case 0:
         if (openBrowserMessage())
         {
@@ -86,11 +94,11 @@ int SearchBrowser::starts()
 
         blockInerface(false);
         break;
-    // System process
+        // Error
     case 1:
         runProgram();
         break;
-    // Browser is not running
+        // System process
     case 2:
         errorMessage();
         break;
@@ -139,9 +147,9 @@ bool SearchBrowser::openBrowserMessage()
 {
     QMessageBox::StandardButton reply = QMessageBox::warning(this, tr("Browser Error"),
         tr("<b>Your browser is running in the background.\n"
-        "You must close the browser!</b>"
-        "\nForce shutdown the browser?"),
-        QMessageBox::Yes|QMessageBox::Cancel);
+            "You must close the browser!</b>"
+            "\nForce shutdown the browser?"),
+        QMessageBox::Yes | QMessageBox::Cancel);
 
     if (reply == QMessageBox::Yes)
         return true;
@@ -173,8 +181,8 @@ bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
     BOOL result = TerminateProcess(hProcess, uExitCode);
 
     CloseHandle(hProcess);
-    
+
     return true;
-    
+
 }
 
