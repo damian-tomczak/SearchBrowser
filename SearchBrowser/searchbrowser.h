@@ -2,10 +2,12 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_searchbrowser.h"
+#include "browserhistory.h"
 #include <windows.h>
 #include <Lmcons.h>
 #include <tlhelp32.h>
 #include <tchar.h>
+#include <sqlite3.h> 
 #include <QMessageBox>
 #include "updater.h"
 #include <string>
@@ -40,4 +42,5 @@ private:
     void errorMessage();
     bool killBrowser(DWORD, UINT);
     std::string getUserName();
+    void pushToScreen(std::vector<BrowserHistory>);
 };

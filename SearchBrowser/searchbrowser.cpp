@@ -165,8 +165,40 @@ void SearchBrowser::errorMessage()
 
 int SearchBrowser::runProgram()
 {
-    std::string username = getUserName();
-    std::string path = "C:\\Users\\" + username + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History";
+    std::string path = "C:\\Users\\" + getUserName() + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History";
+
+    sqlite3* db;
+    int rc = sqlite3_open(path.c_str(), &db);
+    std::vector<BrowserHistory> histories;
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, QUERY24, -1, &stmt, NULL);
+
+    if (rc != SQLITE_OK)
+    {
+        errorMessage();
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        std::string lasttime = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string url = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+
+        //statusBar()->showMessage(QString::fromStdString("Get: " + url));
+
+        histories.push_back(BrowserHistory(lasttime, url));
+    }
+
+    if (rc != SQLITE_DONE)
+    {
+        errorMessage();
+    }
+
+    sqlite3_finalize(stmt);
+    
+    statusBar()->showMessage(tr("Saving is complete"));
+
+    pushToScreen(histories);
+
     return 1;
 }
 
@@ -176,7 +208,9 @@ bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
     BOOL bInheritHandle = FALSE;
     HANDLE hProcess = OpenProcess(dwDesirecAccess, bInheritHandle, dwProcessId);
     if (hProcess == NULL)
+    {
         return FALSE;
+    }
 
     BOOL result = TerminateProcess(hProcess, uExitCode);
 
@@ -194,3 +228,14 @@ std::string SearchBrowser::getUserName()
     return std::string(username);
 }
 
+void SearchBrowser::pushToScreen(std::vector<BrowserHistory> histories)
+{
+    int j = 0;
+    for (auto i : histories)
+    {
+        QListWidgetItem* item = new QListWidgetItem; 
+        item->setText(QString::fromStdString(i.lasttime));
+        ui.listWidget->insertItem(j,item);
+        j++;
+    }
+}

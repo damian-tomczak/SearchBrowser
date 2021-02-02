@@ -44,9 +44,21 @@
     <ClCompile Include="updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sdks\sqlite\shell.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdks\sqlite\sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="browserhistory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="updater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="browserhistory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

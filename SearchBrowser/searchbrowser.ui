@@ -50,7 +50,7 @@
          <widget class="QComboBox" name="Time">
           <item>
            <property name="text">
-            <string>Today</string>
+            <string>Last 24 hours</string>
            </property>
           </item>
           <item>
@@ -60,7 +60,7 @@
           </item>
           <item>
            <property name="text">
-            <string>This month</string>
+            <string>Last month</string>
            </property>
           </item>
          </widget>
