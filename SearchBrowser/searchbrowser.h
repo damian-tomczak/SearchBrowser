@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_searchbrowser.h"
 #include <windows.h>
+#include <Lmcons.h>
 #include <tlhelp32.h>
 #include <tchar.h>
 #include <QMessageBox>
@@ -38,5 +39,5 @@ private:
     bool openBrowserMessage();
     void errorMessage();
     bool killBrowser(DWORD, UINT);
-
+    std::string getUserName();
 };

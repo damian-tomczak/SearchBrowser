@@ -22,7 +22,7 @@ SearchBrowser::SearchBrowser(QWidget* parent)
     createMenus();
 
     setWindowTitle(tr("SearchBrowser"));
-
+    std::string username = getUserName();
     connect(ui.Start, &QAbstractButton::released, this, &SearchBrowser::starts);
 }
 
@@ -94,11 +94,9 @@ int SearchBrowser::starts()
 
         blockInerface(false);
         break;
-        // Error
     case 1:
         runProgram();
         break;
-        // System process
     case 2:
         errorMessage();
         break;
@@ -167,6 +165,8 @@ void SearchBrowser::errorMessage()
 
 int SearchBrowser::runProgram()
 {
+    std::string username = getUserName();
+    std::string path = "C:\\Users\\" + username + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History";
     return 1;
 }
 
@@ -184,5 +184,13 @@ bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
 
     return true;
 
+}
+
+std::string SearchBrowser::getUserName()
+{
+    char username[UNLEN + 1];
+    DWORD username_len = UNLEN + 1;
+    GetUserNameA(username, &username_len);
+    return std::string(username);
 }
 
