@@ -34,9 +34,11 @@ private:
 private:
     void about();
     void help();
+    void setup();
 
 private:
     void blockInerface(bool);
+    void blockSwitches(bool);
 
     int starts();
     int getBrowserProcess(int, bool);

@@ -5,25 +5,7 @@ SearchBrowser::SearchBrowser(QWidget* parent)
 {
     ui.setupUi(this);
 
-    Updater updater;
-    std::string message;
-    if (updater.updateAvailable())
-    {
-        message = "SearchBrowser " VERSION " UPDATE AVAILABLE";
-    }
-    else
-    {
-        message = "SearchBrowser " VERSION " not update available";
-    }
-
-    statusBar()->showMessage(QString::fromStdString(message), 0);
-
-    createActions();
-    createMenus();
-
-    setWindowTitle(tr("SearchBrowser"));
-    std::string username = getUserName();
-    connect(ui.Start, &QAbstractButton::released, this, &SearchBrowser::starts);
+    setup();
 }
 
 void SearchBrowser::about()
@@ -40,6 +22,30 @@ void SearchBrowser::help()
 {
     QMessageBox::information(this, tr("Help Menu"), tr(
         "The program is used to search visited websites in the selected browser in order to find the given phrase."));
+}
+
+void SearchBrowser::setup()
+{
+    Updater updater;
+    std::string message;
+    if (updater.updateAvailable())
+    {
+        message = "SearchBrowser " VERSION " UPDATE AVAILABLE";
+    }
+    else
+    {
+        message = "SearchBrowser " VERSION " not update available";
+    }
+
+    statusBar()->showMessage(QString::fromStdString(message), 0);
+
+    createActions();
+    createMenus();
+    blockSwitches(true);
+
+    setWindowTitle(tr("SearchBrowser"));
+    std::string username = getUserName();
+    connect(ui.Start, &QAbstractButton::clicked, this, &SearchBrowser::starts);
 }
 
 void SearchBrowser::createActions()
@@ -66,6 +72,8 @@ void SearchBrowser::blockInerface(bool condition)
         ui.Browser->setEnabled(false);
         ui.Time->setEnabled(false);
         ui.Input->setEnabled(false);
+        
+        blockSwitches(true);
     }
     else
     {
@@ -73,6 +81,24 @@ void SearchBrowser::blockInerface(bool condition)
         ui.Browser->setEnabled(true);
         ui.Time->setEnabled(true);
         ui.Input->setEnabled(true);
+        
+        blockSwitches(false);
+    }
+}
+
+void SearchBrowser::blockSwitches(bool condition)
+{
+    if (condition)
+    {
+        ui.checkBox_1->setEnabled(false);
+        ui.checkBox_2->setEnabled(false);
+        ui.checkBox_3->setEnabled(false);
+    }
+    else
+    {
+        ui.checkBox_1->setEnabled(true);
+        ui.checkBox_2->setEnabled(true);
+        ui.checkBox_3->setEnabled(true);
     }
 }
 
@@ -176,25 +202,23 @@ int SearchBrowser::runProgram(std::string input, int time)
     std::vector<BrowserHistory> histories;
     sqlite3_stmt* stmt;
 
-    if (time == 0)
+    switch (time)
     {
+    case 0:
         rc = sqlite3_prepare_v2(db, QUERY1, -1, &stmt, NULL);
-    }
-    else if (time == 1)
-    {
+        break;
+    case 1:
         rc = sqlite3_prepare_v2(db, QUERY24, -1, &stmt, NULL);
-    }
-    else if (time == 2)
-    {
+        break;
+    case 2:
         rc = sqlite3_prepare_v2(db, QUERY72, -1, &stmt, NULL);
-    }
-    else if (time == 3)
-    {
+        break;
+    case 3:
         rc = sqlite3_prepare_v2(db, QUERY720, -1, &stmt, NULL);
-    }
-    else
-    {
+        break;
+    default:
         errorMessage();
+        break;
     }
 
     if (rc != SQLITE_OK)
@@ -219,7 +243,9 @@ int SearchBrowser::runProgram(std::string input, int time)
 
     sqlite3_finalize(stmt);
     
-    statusBar()->showMessage(tr("Saving is complete"));
+    int willTime = histories.size() - (histories.size() * 100) / 20;
+    std::string message = histories.size() + " records have been saved. Estimated working time in seconds: " + willTime;
+    statusBar()->showMessage(tr(message.c_str()));
 
     std::vector<std::string> result;
     for (auto i : histories)
@@ -263,12 +289,26 @@ std::string SearchBrowser::getUserName()
 
 void SearchBrowser::pushToScreen(std::vector<std::string> result)
 {
+    QClipboard* clip = QApplication::clipboard();
+    //connect(ui.listWidget->currentItem(), &QAbstractButton::released, this, &SearchBrowser::copyToClipboard());
+    
     int j = 0;
     for (auto i : result)
     {
         QListWidgetItem* item = new QListWidgetItem; 
         item->setText(QString::fromStdString(i));
         ui.listWidget->insertItem(j,item);
+            
+        if (j%2==0)
+        {
+            item->setBackground(QBrush(QColor(97, 191, 15)));
+        }
+        else
+        {
+            item->setBackground(QBrush(QColor(147, 255, 54)));
+        }
+
+
         j++;
     }
 }
