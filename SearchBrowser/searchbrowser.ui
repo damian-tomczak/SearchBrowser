@@ -50,6 +50,11 @@
          <widget class="QComboBox" name="Time">
           <item>
            <property name="text">
+            <string>Last 1 hour</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>Last 24 hours</string>
            </property>
           </item>

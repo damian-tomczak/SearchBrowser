@@ -2,9 +2,10 @@
 
 #include <string>
 
-#define QUERY24 "SELECT datetime(last_visit_time / 1000000 - 11644473600, 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-1 day') ORDER BY last_visit_time DESC;"
-#define QUERY72 "SELECT datetime(last_visit_time / 1000000 - 11644473600, 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-1 day') ORDER BY last_visit_time DESC;"
-#define QUERY720 "SELECT datetime(last_visit_time / 1000000 - 11644473600, 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-1 day') ORDER BY last_visit_time DESC;"
+#define QUERY1 "SELECT  datetime(last_visit_time / 1000000 + (strftime('%s', '1601-01-01')), 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-1 hour') ORDER BY last_visit_time DESC;"
+#define QUERY24 "SELECT  datetime(last_visit_time / 1000000 + (strftime('%s', '1601-01-01')), 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-1 day') ORDER BY last_visit_time DESC;"
+#define QUERY72 "SELECT  datetime(last_visit_time / 1000000 + (strftime('%s', '1601-01-01')), 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-3 day') ORDER BY last_visit_time DESC;"
+#define QUERY720 "SELECT  datetime(last_visit_time / 1000000 + (strftime('%s', '1601-01-01')), 'unixepoch', 'localtime') as datte, url FROM urls WHERE datte >= datetime('now', '-30 day') ORDER BY last_visit_time DESC;"
 
 class BrowserHistory
 {

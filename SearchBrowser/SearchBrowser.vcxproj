@@ -109,6 +109,7 @@
     <ClCompile Include="..\..\..\sdks\sqlite\shell.c" />
     <ClCompile Include="..\..\..\sdks\sqlite\sqlite3.c" />
     <ClCompile Include="browserhistory.cpp" />
+    <ClCompile Include="internet.cpp" />
     <ClCompile Include="updater.cpp" />
     <QtRcc Include="searchbrowser.qrc" />
     <QtUic Include="searchbrowser.ui" />
@@ -118,6 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="browserhistory.h" />
+    <ClInclude Include="internet.h" />
     <ClInclude Include="updater.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

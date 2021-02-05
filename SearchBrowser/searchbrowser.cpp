@@ -80,7 +80,11 @@ int SearchBrowser::starts()
 {
     blockInerface(true);
 
-    int choosed = ui.Browser->itemData(ui.Browser->currentIndex()).toInt();
+    int choosed = ui.Browser->currentIndex();
+    int time = ui.Time->currentIndex();
+    
+    QString qinput = ui.Input->toPlainText();
+    std::string input = qinput.toLocal8Bit().constData(); // Polish characters 
 
     int result = getBrowserProcess(choosed, false);
     switch (result)
@@ -95,7 +99,7 @@ int SearchBrowser::starts()
         blockInerface(false);
         break;
     case 1:
-        runProgram();
+        runProgram(input, time);
         break;
     case 2:
         errorMessage();
@@ -163,7 +167,7 @@ void SearchBrowser::errorMessage()
     QApplication::quit();
 }
 
-int SearchBrowser::runProgram()
+int SearchBrowser::runProgram(std::string input, int time)
 {
     std::string path = "C:\\Users\\" + getUserName() + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History";
 
@@ -171,7 +175,27 @@ int SearchBrowser::runProgram()
     int rc = sqlite3_open(path.c_str(), &db);
     std::vector<BrowserHistory> histories;
     sqlite3_stmt* stmt;
-    rc = sqlite3_prepare_v2(db, QUERY24, -1, &stmt, NULL);
+
+    if (time == 0)
+    {
+        rc = sqlite3_prepare_v2(db, QUERY1, -1, &stmt, NULL);
+    }
+    else if (time == 1)
+    {
+        rc = sqlite3_prepare_v2(db, QUERY24, -1, &stmt, NULL);
+    }
+    else if (time == 2)
+    {
+        rc = sqlite3_prepare_v2(db, QUERY72, -1, &stmt, NULL);
+    }
+    else if (time == 3)
+    {
+        rc = sqlite3_prepare_v2(db, QUERY720, -1, &stmt, NULL);
+    }
+    else
+    {
+        errorMessage();
+    }
 
     if (rc != SQLITE_OK)
     {
@@ -197,7 +221,16 @@ int SearchBrowser::runProgram()
     
     statusBar()->showMessage(tr("Saving is complete"));
 
-    pushToScreen(histories);
+    std::vector<std::string> result;
+    for (auto i : histories)
+    {
+        if (Internet::checkUrlOnInternet(i, input))
+        {
+            result.push_back(i.url);
+        }
+    }
+
+    pushToScreen(result);
 
     return 1;
 }
@@ -228,13 +261,13 @@ std::string SearchBrowser::getUserName()
     return std::string(username);
 }
 
-void SearchBrowser::pushToScreen(std::vector<BrowserHistory> histories)
+void SearchBrowser::pushToScreen(std::vector<std::string> result)
 {
     int j = 0;
-    for (auto i : histories)
+    for (auto i : result)
     {
         QListWidgetItem* item = new QListWidgetItem; 
-        item->setText(QString::fromStdString(i.lasttime));
+        item->setText(QString::fromStdString(i));
         ui.listWidget->insertItem(j,item);
         j++;
     }
