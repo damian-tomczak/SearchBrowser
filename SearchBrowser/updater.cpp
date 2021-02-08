@@ -45,6 +45,6 @@ void Updater::updateMessage(std::string _newest, std::string _current)
 	QMessageBox::information(NULL, "Update Available!",
 		"You are currently using version: " + current + "<br>"
 		"The newest available is: " + newest + "<br>"
-		"<a href='https://damian-tomczak.pl/searchbrowser'>Download the latest version</a><br>");
+		"<a href='https://github.com/damian28102000/SearchBrowser'>Download the latest version</a><br>");
 	
 }

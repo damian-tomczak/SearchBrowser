@@ -2,6 +2,8 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QUrl>
 #include <QThread>
 
 #include "ui_searchbrowser.h"
@@ -28,6 +30,7 @@ public:
     void pushToScreen(std::string);
     void progressBar(int, int);
     void refresh();
+    void openBrowser();
 
     void lockInterface(bool);
     void runScanner();
