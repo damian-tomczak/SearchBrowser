@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="SearchBrowser">
-    </qresource>
+  <qresource prefix="SearchBrowser">
+    <file>cube.png</file>
+  </qresource>
 </RCC>

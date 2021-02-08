@@ -7,7 +7,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 	return size * nmemb;
 }
 
-bool Internet::checkUrlOnInternet(BrowserHistory i, std::string input)
+bool checkUrlOnInternet(BrowserHistory i, std::string input)
 {
 	CURL* curl;
 	CURLcode res;

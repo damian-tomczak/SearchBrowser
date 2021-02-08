@@ -1,12 +1,8 @@
 #pragma once
-#define CURL_STATICLIB
+#define CURL_STATICCLIB
+
 #include "browserhistory.h"
 #include <string>
 #include <curl/curl.h>
 
-class Internet
-{
-public:
-	static bool checkUrlOnInternet(BrowserHistory, std::string);
-};
-
+bool checkUrlOnInternet(BrowserHistory, std::string);

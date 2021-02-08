@@ -2,11 +2,11 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QMessageBox>
+#include <QThread>
 
 #include "ui_searchbrowser.h"
-#include "browserhistory.h"
 #include "updater.h"
-#include "internet.h"
+#include "scanner.h"
 
 #include <windows.h>
 #include <Lmcons.h>
@@ -20,32 +20,28 @@ class SearchBrowser : public QMainWindow
     Q_OBJECT
 
 public:
-    SearchBrowser(QWidget* parent = Q_NULLPTR);
+    SearchBrowser(QWidget *parent = Q_NULLPTR);
+    void aboutMessage();
+    void helpMessage();
+    static void errorMessage();
+    bool openBrowserMessage();
+    void pushToScreen(std::string);
+    void progressBar(int, int);
+    void refresh();
+
+    void lockInterface(bool);
+    void runScanner();
+    void progress(std::string);
+    bool getBrowserProcess(int, bool);
+    bool killBrowser(DWORD, UINT);
 
 private:
     Ui::SearchBrowserClass ui;
-    void createMenus();
-    void createActions();
-
     QMenu* helpMenu;
     QAction* aboutAct;
     QAction* helpAct;
 
-private:
-    void about();
-    void help();
-    void setup();
+    void createMenus();
+    void createActions();
 
-private:
-    void blockInerface(bool);
-    void blockSwitches(bool);
-
-    int starts();
-    int getBrowserProcess(int, bool);
-    int runProgram(std::string, int);
-    bool openBrowserMessage();
-    void errorMessage();
-    bool killBrowser(DWORD, UINT);
-    std::string getUserName();
-    void pushToScreen(std::vector<std::string>);
 };

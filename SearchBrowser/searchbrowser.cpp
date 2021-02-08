@@ -1,14 +1,19 @@
 #include "searchbrowser.h"
 
-SearchBrowser::SearchBrowser(QWidget* parent)
+SearchBrowser::SearchBrowser(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+    
+    Updater updater;
+    
+    createActions();
+    createMenus();
 
-    setup();
+    connect(ui.Start, &QAbstractButton::released, this, &SearchBrowser::runScanner);
 }
 
-void SearchBrowser::about()
+void SearchBrowser::aboutMessage()
 {
     QMessageBox msgBox;
     msgBox.setWindowTitle("About Menu");
@@ -18,43 +23,27 @@ void SearchBrowser::about()
     msgBox.exec();
 }
 
-void SearchBrowser::help()
+void SearchBrowser::helpMessage()
 {
-    QMessageBox::information(this, tr("Help Menu"), tr(
+    QMessageBox::information(NULL, tr("Help Menu"), tr(
         "The program is used to search visited websites in the selected browser in order to find the given phrase."));
 }
 
-void SearchBrowser::setup()
+void SearchBrowser::errorMessage()
 {
-    Updater updater;
-    std::string message;
-    if (updater.updateAvailable())
-    {
-        message = "SearchBrowser " VERSION " UPDATE AVAILABLE";
-    }
-    else
-    {
-        message = "SearchBrowser " VERSION " not update available";
-    }
-
-    statusBar()->showMessage(QString::fromStdString(message), 0);
-
-    createActions();
-    createMenus();
-    blockSwitches(true);
-
-    setWindowTitle(tr("SearchBrowser"));
-    std::string username = getUserName();
-    connect(ui.Start, &QAbstractButton::clicked, this, &SearchBrowser::starts);
+    QMessageBox::critical(NULL, tr("Critical Error"),
+        tr("Something went wrong..."),
+        QMessageBox::Close);
+    QApplication::quit();
 }
 
 void SearchBrowser::createActions()
 {
     aboutAct = new QAction(tr("About"), this);
-    connect(aboutAct, &QAction::triggered, this, &SearchBrowser::about);
+    connect(aboutAct, &QAction::triggered, this, &SearchBrowser::aboutMessage);
 
     helpAct = new QAction(tr("Help"), this);
-    connect(helpAct, &QAction::triggered, this, &SearchBrowser::help);
+    connect(helpAct, &QAction::triggered, this, &SearchBrowser::helpMessage);
 }
 
 void SearchBrowser::createMenus()
@@ -64,116 +53,9 @@ void SearchBrowser::createMenus()
     helpMenu->addAction(aboutAct);
 }
 
-void SearchBrowser::blockInerface(bool condition)
-{
-    if (condition)
-    {
-        ui.Start->setEnabled(false);
-        ui.Browser->setEnabled(false);
-        ui.Time->setEnabled(false);
-        ui.Input->setEnabled(false);
-        
-        blockSwitches(true);
-    }
-    else
-    {
-        ui.Start->setEnabled(true);
-        ui.Browser->setEnabled(true);
-        ui.Time->setEnabled(true);
-        ui.Input->setEnabled(true);
-        
-        blockSwitches(false);
-    }
-}
-
-void SearchBrowser::blockSwitches(bool condition)
-{
-    if (condition)
-    {
-        ui.checkBox_1->setEnabled(false);
-        ui.checkBox_2->setEnabled(false);
-        ui.checkBox_3->setEnabled(false);
-    }
-    else
-    {
-        ui.checkBox_1->setEnabled(true);
-        ui.checkBox_2->setEnabled(true);
-        ui.checkBox_3->setEnabled(true);
-    }
-}
-
-int SearchBrowser::starts()
-{
-    blockInerface(true);
-
-    int choosed = ui.Browser->currentIndex();
-    int time = ui.Time->currentIndex();
-    
-    QString qinput = ui.Input->toPlainText();
-    std::string input = qinput.toLocal8Bit().constData(); // Polish characters 
-
-    int result = getBrowserProcess(choosed, false);
-    switch (result)
-    {
-        // Browser running
-    case 0:
-        if (openBrowserMessage())
-        {
-            getBrowserProcess(choosed, true);
-        }
-
-        blockInerface(false);
-        break;
-    case 1:
-        runProgram(input, time);
-        break;
-    case 2:
-        errorMessage();
-        break;
-    }
-
-    return 1;
-}
-
-int SearchBrowser::getBrowserProcess(int index, bool kill)
-{
-    std::vector<std::wstring> browsers = {
-        L"chrome.exe"
-    };
-
-    const wchar_t* executableName = browsers[index].c_str();
-
-    PROCESSENTRY32 entry;
-    entry.dwSize = sizeof(PROCESSENTRY32);
-
-    const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-
-    if (!Process32First(snapshot, &entry))
-    {
-        CloseHandle(snapshot);
-        return 2;
-    }
-
-    do {
-        if (!_tcsicmp(entry.szExeFile, executableName))
-        {
-            if (kill)
-            {
-                killBrowser(entry.th32ProcessID, 1);
-            }
-            CloseHandle(snapshot);
-            return 0;
-        }
-    } while (Process32Next(snapshot, &entry));
-
-    CloseHandle(snapshot);
-    return 1;
-
-}
-
 bool SearchBrowser::openBrowserMessage()
 {
-    QMessageBox::StandardButton reply = QMessageBox::warning(this, tr("Browser Error"),
+    QMessageBox::StandardButton reply = QMessageBox::warning(nullptr, tr("Browser Error"),
         tr("<b>Your browser is running in the background.\n"
             "You must close the browser!</b>"
             "\nForce shutdown the browser?"),
@@ -185,80 +67,113 @@ bool SearchBrowser::openBrowserMessage()
         return false;
 }
 
-void SearchBrowser::errorMessage()
+void SearchBrowser::lockInterface(bool condition)
 {
-    QMessageBox::critical(this, tr("Critical Error"),
-        tr("Something went wrong..."),
-        QMessageBox::Close);
-    QApplication::quit();
+    if (condition)
+    {
+        ui.Start->setEnabled(false);
+        ui.Browser->setEnabled(false);
+        ui.Time->setEnabled(false);
+        ui.Input->setEnabled(false);
+    }
+    else
+    {
+        ui.Start->setEnabled(true);
+        ui.Browser->setEnabled(true);
+        ui.Time->setEnabled(true);
+        ui.Input->setEnabled(true);
+    }
 }
 
-int SearchBrowser::runProgram(std::string input, int time)
+void SearchBrowser::runScanner()
 {
-    std::string path = "C:\\Users\\" + getUserName() + "\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\History";
+    lockInterface(true);
 
-    sqlite3* db;
-    int rc = sqlite3_open(path.c_str(), &db);
-    std::vector<BrowserHistory> histories;
-    sqlite3_stmt* stmt;
+    int choosed = ui.Browser->currentIndex();
+    int time = ui.Time->currentIndex();
+    bool run = false;
 
-    switch (time)
+    QString qinput = ui.Input->toPlainText();
+    std::string input = qinput.toLocal8Bit().constData(); // Polish characters 
+
+    if (getBrowserProcess(choosed, false))
     {
-    case 0:
-        rc = sqlite3_prepare_v2(db, QUERY1, -1, &stmt, NULL);
-        break;
-    case 1:
-        rc = sqlite3_prepare_v2(db, QUERY24, -1, &stmt, NULL);
-        break;
-    case 2:
-        rc = sqlite3_prepare_v2(db, QUERY72, -1, &stmt, NULL);
-        break;
-    case 3:
-        rc = sqlite3_prepare_v2(db, QUERY720, -1, &stmt, NULL);
-        break;
-    default:
-        errorMessage();
-        break;
-    }
-
-    if (rc != SQLITE_OK)
-    {
-        errorMessage();
-    }
-
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
-    {
-        std::string lasttime = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        std::string url = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-
-        //statusBar()->showMessage(QString::fromStdString("Get: " + url));
-
-        histories.push_back(BrowserHistory(lasttime, url));
-    }
-
-    if (rc != SQLITE_DONE)
-    {
-        errorMessage();
-    }
-
-    sqlite3_finalize(stmt);
-    
-    int willTime = histories.size() - (histories.size() * 100) / 20;
-    std::string message = histories.size() + " records have been saved. Estimated working time in seconds: " + willTime;
-    statusBar()->showMessage(tr(message.c_str()));
-
-    std::vector<std::string> result;
-    for (auto i : histories)
-    {
-        if (Internet::checkUrlOnInternet(i, input))
+        if (openBrowserMessage())
         {
-            result.push_back(i.url);
+            if (getBrowserProcess(choosed, true))
+            {
+                run = true;
+            }
         }
     }
+    else
+    {
+        run = true;
+    }
 
-    pushToScreen(result);
+    if (run)
+    {
+        ui.listWidget->clear();
 
-    return 1;
+        ui.listWidget->setEnabled(true);
+
+        QThread* scannerThread = new QThread;
+        Scanner* scannerObject = new Scanner(input, time);
+        scannerObject->moveToThread(scannerThread);
+
+        connect(scannerThread, &QThread::started, scannerObject, &Scanner::process);
+        connect(scannerObject, &Scanner::progress, this, &SearchBrowser::progress);
+        connect(scannerObject, &Scanner::numberLoop, this, &SearchBrowser::progressBar);
+
+        connect(scannerObject, &Scanner::doneProcess, scannerThread, &QThread::quit);
+        connect(scannerObject, &Scanner::doneProcess, this, &SearchBrowser::refresh);
+        connect(scannerObject, &Scanner::doneProcess, scannerObject, &Scanner::deleteLater);
+        connect(scannerThread, &QThread::finished, scannerObject, &Scanner::deleteLater);
+
+        scannerThread->start();
+    }
+    else
+    {
+        lockInterface(false);
+    }
+}
+
+bool SearchBrowser::getBrowserProcess(int _index, bool _kill)
+{
+    std::vector<std::wstring> browsers = {
+        L"chrome.exe"
+    };
+
+    const wchar_t* executableName = browsers[_index].c_str();
+
+    PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+    const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (!Process32First(snapshot, &entry))
+    {
+        CloseHandle(snapshot);
+        return false;
+    }
+
+    do {
+        if (!_tcsicmp(entry.szExeFile, executableName))
+        {
+            if (_kill)
+            {
+                if (killBrowser(entry.th32ProcessID, 1))
+                    return true;
+                else
+                    return false;
+            }
+            CloseHandle(snapshot);
+            return true;
+        }
+    } while (Process32Next(snapshot, &entry));
+
+    CloseHandle(snapshot);
+    return false;
 }
 
 bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
@@ -276,39 +191,31 @@ bool SearchBrowser::killBrowser(DWORD dwProcessId, UINT uExitCode)
     CloseHandle(hProcess);
 
     return true;
-
 }
 
-std::string SearchBrowser::getUserName()
+void SearchBrowser::progress(std::string _url)
 {
-    char username[UNLEN + 1];
-    DWORD username_len = UNLEN + 1;
-    GetUserNameA(username, &username_len);
-    return std::string(username);
+    pushToScreen(_url);
 }
 
-void SearchBrowser::pushToScreen(std::vector<std::string> result)
+void SearchBrowser::progressBar(int _sizeAll, int _sizeCurrent)
 {
-    QClipboard* clip = QApplication::clipboard();
-    //connect(ui.listWidget->currentItem(), &QAbstractButton::released, this, &SearchBrowser::copyToClipboard());
-    
-    int j = 0;
-    for (auto i : result)
-    {
-        QListWidgetItem* item = new QListWidgetItem; 
-        item->setText(QString::fromStdString(i));
-        ui.listWidget->insertItem(j,item);
-            
-        if (j%2==0)
-        {
-            item->setBackground(QBrush(QColor(97, 191, 15)));
-        }
-        else
-        {
-            item->setBackground(QBrush(QColor(147, 255, 54)));
-        }
+    ui.progressBar->setValue((_sizeCurrent * 100) / _sizeAll);
+}
 
+void SearchBrowser::pushToScreen(std::string _url)
+{
+    QListWidgetItem* item = new QListWidgetItem;
+    item->setText(QString::fromStdString(_url));
+    ui.listWidget->addItem(item);
 
-        j++;
-    }
+    if(ui.listWidget->count() %2==0)
+        item->setBackground(QBrush(QColor(144, 229, 126)));
+    else
+        item->setBackground(QBrush(QColor(119, 184, 104)));
+}
+
+void SearchBrowser::refresh()
+{
+    lockInterface(false);
 }

@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FCE75A70-167F-4232-BA8F-A4657A390AEC}</ProjectGuid>
+    <ProjectGuid>{3342CB85-195F-4D4B-B528-75408874C272}</ProjectGuid>
     <Keyword>QtVS_v303</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.18362.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.18362.0</WindowsTargetPlatformVersion>
@@ -49,17 +49,17 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\sdks\curl-7.74.0\x64DEBUG\include;C:\sdks\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\sdks\sqlite;C:\sdks\curl-7.74.0\x64DEBUG\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\sdks\curl-7.74.0\x64DEBUG\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(Qt_LIBS_);%(AdditionalDependencies);Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;libcurl_a_debug.lib;</AdditionalDependencies>
+      <AdditionalDependencies>$(Qt_LIBS_);%(AdditionalDependencies);;Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;libcurl_a_debug.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\sdks\curl-7.74.0\x64RELEASE\include;C:\sdks\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\sdks\sqlite;C:\sdks\curl-7.74.0\x64RELEASE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\sdks\curl-7.74.0\x64RELEASE\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -106,10 +106,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\sdks\sqlite\shell.c" />
-    <ClCompile Include="..\..\..\sdks\sqlite\sqlite3.c" />
+    <ClCompile Include="..\..\..\..\sdks\sqlite\shell.c" />
+    <ClCompile Include="..\..\..\..\sdks\sqlite\sqlite3.c" />
     <ClCompile Include="browserhistory.cpp" />
     <ClCompile Include="internet.cpp" />
+    <ClCompile Include="scanner.cpp" />
     <ClCompile Include="updater.cpp" />
     <QtRcc Include="searchbrowser.qrc" />
     <QtUic Include="searchbrowser.ui" />
@@ -119,7 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="browserhistory.h" />
-    <ClInclude Include="internet.h" />
+    <ClInclude Include="Internet.h" />
+    <QtMoc Include="scanner.h" />
     <ClInclude Include="updater.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
