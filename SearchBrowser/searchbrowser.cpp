@@ -121,14 +121,14 @@ void SearchBrowser::runScanner()
         Scanner* scannerObject = new Scanner(input, time);
         scannerObject->moveToThread(scannerThread);
 
-        connect(scannerThread, &QThread::started, scannerObject, &Scanner::process);
-        connect(scannerObject, &Scanner::progress, this, &SearchBrowser::progress);
-        connect(scannerObject, &Scanner::numberLoop, this, &SearchBrowser::progressBar);
+        connect(scannerThread, &QThread::started, scannerObject, &Scanner::process, Qt::ConnectionType::DirectConnection);
+        connect(scannerObject, &Scanner::progress, this, &SearchBrowser::progress, Qt::ConnectionType::QueuedConnection);
+        connect(scannerObject, &Scanner::numberLoop, this, &SearchBrowser::progressBar, Qt::ConnectionType::QueuedConnection);
 
-        connect(scannerObject, &Scanner::doneProcess, scannerThread, &QThread::quit);
-        connect(scannerObject, &Scanner::doneProcess, this, &SearchBrowser::refresh);
-        connect(scannerObject, &Scanner::doneProcess, scannerObject, &Scanner::deleteLater);
-        connect(scannerThread, &QThread::finished, scannerObject, &Scanner::deleteLater);
+        connect(scannerObject, &Scanner::doneProcess, scannerThread, &QThread::quit, Qt::ConnectionType::QueuedConnection);
+        connect(scannerObject, &Scanner::doneProcess, this, &SearchBrowser::refresh, Qt::ConnectionType::QueuedConnection);
+        connect(scannerObject, &Scanner::doneProcess, scannerObject, &Scanner::deleteLater, Qt::ConnectionType::QueuedConnection);
+        connect(scannerThread, &QThread::finished, scannerObject, &Scanner::deleteLater, Qt::ConnectionType::DirectConnection);
 
         scannerThread->start();
     }
@@ -217,5 +217,14 @@ void SearchBrowser::pushToScreen(std::string _url)
 
 void SearchBrowser::refresh()
 {
+    connect(ui.listWidget, &QListWidget::itemDoubleClicked, this, &SearchBrowser::openBrowser);
+    
     lockInterface(false);
+}
+
+void SearchBrowser::openBrowser()
+{
+    QObject* obj = sender();
+    QListWidget* item = qobject_cast<QListWidget*>(obj);
+    QDesktopServices::openUrl(item->currentItem()->text());
 }

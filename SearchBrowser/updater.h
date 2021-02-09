@@ -18,7 +18,7 @@ public:
 
 private:
 	std::string newest;
-	std::string current = "0.0.1";
+	std::string current = "0.1.0";
 	static void updateMessage(std::string, std::string);
 };
 
